@@ -50,32 +50,56 @@ classifier = Sequential() # инициализация пустого ANN classi
 
 # Adding the input layer and the first hidden layer
 classifier.add(Dense(
-  output_dim = 6, # hiddent layer neurons (11 + 1) / 2
-  init = 'uniform', # init weights near zero
+  6, # hidden layer neurons (11 + 1) / 2
+  input_dim = 11, # number of inputs (only in first layer)
+  kernel_initializer = 'uniform', # init weights near zero
+  activation = 'relu' # rectifier _/ function
 ))
+
+# Adding the second hidden layer
+classifier.add(Dense(
+  6, # hiddent layer neurons (11 + 1) / 2
+  kernel_initializer = 'uniform', # init weights near zero
+  activation = 'relu' # rectifier _/ function
+))
+
+# Adding the output layer
+classifier.add(Dense(
+  1, # only 2 output (0 - stay and 1 - leave)
+  kernel_initializer = 'uniform', # init weights near zero
+  activation = 'sigmoid' # sigmoid S function (softmax if >2 outputs)
+))
+
+# Compiling the ANN
+classifier.compile(
+  optimizer = 'adam', # algorithm (gradient descent)
+  # для оптимизации параметров (logarithmic loss)
+  # если больше двух выходов cadecorical_crossentropy
+  # например линейная модель - наименьшие расстояния от прямой до точек
+  loss = 'binary_crossentropy',
+  # алгоритм узнавания качества модели (как менять веса сети)
+  metrics = ['accuracy']
+)
+
+# Fitting the ANN to the Training set
+classifier.fit(
+  X_train,
+  y_train,
+  batch_size = 10, # количество проходов перед обновлением весов
+  nb_epoch = 100 # количество проходов по всем данным
+) # get accuracy around 86%
 
 # Part 3 - Making the predictions and evaluating the model
 
 # Predicting the Test set results
 y_pred = classifier.predict(X_test)
+y_pred = (y_pred > 0.5) # переводим из % в True, False для cm
+# если нужна более чуткая модель, то можно поставить 0.6
 
 # Making the Confusion Matrix
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# получил около 85.5% точность на тестовых данных (1710/2000)
 
 
 
