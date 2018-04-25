@@ -135,6 +135,61 @@ new_prediction = classifier.predict(
 new_prediction = (new_prediction > 0.5)
 
 
+# Part 4 - Evaluationg, Improving
+# более точная точность будет, мы адльше разделим X_test на 10 строк
+# и каждую строку еще на 10 частей , из них мы возьмем 9 кусочков строки
+# для обучения модели и 1 одну часть для проверки точности
+# в итоге модель 10 раз обучится и 10 раз себя проверит
+# будет 10 значений точностей модели и мы возьмем среднее значение
+# которое и будет нашим итоговым значением точности
+# Evaluating the ANN
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import cross_val_score
+def build_classifier(): # Initialising the ANN скопировал выше строчки
+  classifier = Sequential() # инициализация пустого ANN classifier
+  classifier.add(Dense(
+    6, # hidden layer neurons (11 + 1) / 2
+    input_dim = 11, # number of inputs (only in first layer)
+    kernel_initializer = 'uniform', # init weights near zero
+    activation = 'relu' # rectifier _/ function
+  ))
+  classifier.add(Dense(
+    6, # hiddent layer neurons (11 + 1) / 2
+    kernel_initializer = 'uniform', # init weights near zero
+    activation = 'relu' # rectifier _/ function
+  ))
+  classifier.add(Dense(
+    1, # only 2 output (0 - stay and 1 - leave)
+    kernel_initializer = 'uniform', # init weights near zero
+    activation = 'sigmoid' # sigmoid S function (softmax if >2 outputs)
+  ))
+  classifier.compile(
+    optimizer = 'adam', # algorithm (gradient descent)
+    loss = 'binary_crossentropy',
+    metrics = ['accuracy']
+  )
+  return classifier
+
+classifier = KerasClassifier(
+  build_fn = build_classifier, # создаем новую ANN
+  batch_size = 10,
+  nb_epoch = 100
+)
+
+accuracies = cross_val_score(
+  estimator = classifier,
+  X = X_train,
+  y = y_train,
+  cv = 10 # на сколько кусков разбиваем X_train
+  # , n_jobs = -1 # подключаем все ядра для выполнения
+)
+mean = accuracies.mean() # среднее значение получаем 79.6%
+variance = accuracies.std() # среднее отклонение значений 1.01%
+
+# Improving the ANN
+
+
+
 
 
 
