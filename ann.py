@@ -196,11 +196,40 @@ variance = accuracies.std() # среднее отклонение значени
 # Improving the ANN
 # Dropout Regulatization to reduces overfitting if needed
 # когда на Train данных модель выдает 90%, а Test выдает 70% (переобучение)
-
-
+# добавлено в самую верхную модель ANN
 
 # Tuning the ANN
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+def build_classifier(optimizer): # Initialising the ANN скопировал выше строчки
+  classifier = Sequential() # инициализация пустого ANN classifier
+  classifier.add(Dense(10, input_dim = 11, kernel_initializer = 'uniform', activation = 'relu'))
+  classifier.add(Dropout( # добавляется к только добавленному слою нейронки
+    rate = 0.1 # 10% если этого мало, то берем +10% и тд
+  ))
+  classifier.add(Dense(10, kernel_initializer = 'uniform', activation = 'relu'))
+  classifier.add(Dropout( # добавляется к только добавленному слою нейронки
+    rate = 0.1 # 10% если этого мало, то берем +10% и тд
+  ))
+  classifier.add(Dense(1, kernel_initializer = 'uniform', activation = 'sigmoid'))
+  classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
+  return classifier
 
-
-
-
+# будем настраивать параметры batch_size = 10, nb_epoch = 100
+classifier = KerasClassifier(build_fn = build_classifier)
+parameters = {
+  'batch_size': [25, 100, 1000], # 25, 32
+  'nb_epoch': [50, 100, 200], # 100, 500
+  # через параметр передаем в build_classifier(optimizer)
+  'optimizer': ['adam', 'rmsprop']
+}
+grid_search = GridSearchCV(
+  estimator = classifier, # передаем сюда KerasClassifier
+  param_grid = parameters, # как раз параметры сюда передаем
+  scoring = 'accuracy', # как мерием точность
+  cv = 10 # количество прогонов для проверки точности cross_val_score
+  #, n_jobs = 1 # количество процессоров
+)
+grid_search = grid_search.fit(X_train, y_train) # передаем данные
+best_parameters = grid_search.best_params_
+best_accuracy = grid_search.best_score_
