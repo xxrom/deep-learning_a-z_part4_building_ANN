@@ -44,16 +44,20 @@ X_test = sc.transform(X_test)
 import keras
 from keras.models import Sequential
 from keras.layers import Dense # инициализация слоев нейронки
+from keras.layers import Dropout # отключает нероны, исключает переобучение
 
 # Initialising the ANN
 classifier = Sequential() # инициализация пустого ANN classifier
 
-# Adding the input layer and the first hidden layer
+# Adding the input layer and the first hidden layer with Dropout
 classifier.add(Dense(
   6, # hidden layer neurons (11 + 1) / 2
   input_dim = 11, # number of inputs (only in first layer)
   kernel_initializer = 'uniform', # init weights near zero
   activation = 'relu' # rectifier _/ function
+))
+classifier.add(Dropout( # добавляется к только добавленному слою нейронки
+  rate = 0.1 # 10% если этого мало, то берем +10% и тд
 ))
 
 # Adding the second hidden layer
@@ -61,6 +65,9 @@ classifier.add(Dense(
   6, # hiddent layer neurons (11 + 1) / 2
   kernel_initializer = 'uniform', # init weights near zero
   activation = 'relu' # rectifier _/ function
+))
+classifier.add(Dropout( # добавляется к только добавленному слою нейронки
+  rate = 0.1 # 10% если этого мало, то берем +10% и тд
 ))
 
 # Adding the output layer
@@ -187,9 +194,12 @@ mean = accuracies.mean() # среднее значение получаем 79.6
 variance = accuracies.std() # среднее отклонение значений 1.01%
 
 # Improving the ANN
+# Dropout Regulatization to reduces overfitting if needed
+# когда на Train данных модель выдает 90%, а Test выдает 70% (переобучение)
 
 
 
+# Tuning the ANN
 
 
 
