@@ -102,7 +102,37 @@ cm = confusion_matrix(y_test, y_pred)
 # получил около 85.5% точность на тестовых данных (1710/2000)
 
 
+# home Work
+'''
+Use our ANN model to predict if the customer with the following informations will leave the bank:
 
+Geography: France
+Credit Score: 600
+Gender: Male
+Age: 40 years old
+Tenure: 3 years
+Balance: $60000
+Number of Products: 2
+Does this customer have a credit card ? Yes
+Is this customer an Active Member: Yes
+Estimated Salary: $50000
+So should we say goodbye to that customer ?
+'''
+
+new_prediction = classifier.predict(
+  sc.transform( # масштабируем новые данные
+    np.array([ # искуственно создаем двуменый массив
+      [ # просто сравниваем данные и заполняем их
+        0.0, # добавляем .0 к элементу чтобы убрать ошибку
+#Data with input dtype int64 was converted to float64 by StandardScaler
+       0,
+       600,
+       1, # Mail
+       40, 3, 60000, 2, 1, 1, 50000]
+    ])
+  )
+)
+new_prediction = (new_prediction > 0.5)
 
 
 
