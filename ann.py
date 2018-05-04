@@ -93,7 +93,7 @@ classifier.fit(
   X_train,
   y_train,
   batch_size = 10, # количество проходов перед обновлением весов
-  nb_epoch = 100 # количество проходов по всем данным
+  epochs = 100 # количество проходов по всем данным
 ) # get accuracy around 86%
 
 # Part 3 - Making the predictions and evaluating the model
@@ -180,7 +180,7 @@ def build_classifier(): # Initialising the ANN скопировал выше с�
 classifier = KerasClassifier(
   build_fn = build_classifier, # создаем новую ANN
   batch_size = 10,
-  nb_epoch = 100
+  epochs = 100
 )
 
 accuracies = cross_val_score(
@@ -201,25 +201,19 @@ variance = accuracies.std() # среднее отклонение значени
 # Tuning the ANN
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
-def build_classifier(optimizer): # Initialising the ANN скопировал выше строчки
+def build_classifier2(optimizer): # Initialising the ANN скопировал выше строчки
   classifier = Sequential() # инициализация пустого ANN classifier
-  classifier.add(Dense(10, input_dim = 11, kernel_initializer = 'uniform', activation = 'relu'))
-  classifier.add(Dropout( # добавляется к только добавленному слою нейронки
-    rate = 0.1 # 10% если этого мало, то берем +10% и тд
-  ))
-  classifier.add(Dense(10, kernel_initializer = 'uniform', activation = 'relu'))
-  classifier.add(Dropout( # добавляется к только добавленному слою нейронки
-    rate = 0.1 # 10% если этого мало, то берем +10% и тд
-  ))
+  classifier.add(Dense(6, input_dim = 11, kernel_initializer = 'uniform', activation = 'relu'))
+  classifier.add(Dense(6, kernel_initializer = 'uniform', activation = 'relu'))
   classifier.add(Dense(1, kernel_initializer = 'uniform', activation = 'sigmoid'))
   classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
   return classifier
 
 # будем настраивать параметры batch_size = 10, nb_epoch = 100
-classifier = KerasClassifier(build_fn = build_classifier)
+classifier = KerasClassifier(build_fn = build_classifier2)
 parameters = {
-  'batch_size': [25, 100, 1000], # 25, 32
-  'nb_epoch': [50, 100, 200], # 100, 500
+  'batch_size': [20, 50, 100], # 25, 32
+  'epochs': [200, 300, 500], # 100, 500
   # через параметр передаем в build_classifier(optimizer)
   'optimizer': ['adam', 'rmsprop']
 }
@@ -228,8 +222,11 @@ grid_search = GridSearchCV(
   param_grid = parameters, # как раз параметры сюда передаем
   scoring = 'accuracy', # как мерием точность
   cv = 10 # количество прогонов для проверки точности cross_val_score
-  #, n_jobs = 1 # количество процессоров
+  # , n_jobs = -1 # количество процессоров
 )
 grid_search = grid_search.fit(X_train, y_train) # передаем данные
 best_parameters = grid_search.best_params_
 best_accuracy = grid_search.best_score_
+
+# {'batch_size': 100, 'nb_epoch': 50, 'optimizer': 'adam'}
+# 0.796
